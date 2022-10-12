@@ -5,16 +5,10 @@ import time
 import requests
 from io import BytesIO
 
-from src.processing import search_artist_track, get_image_url, get_preview_url, return_image_from_url, return_player_from_url
-from src.utils import get_artist_tracks, convert_fractional_time, load_config
+from src.processing import get_image_url, get_preview_url, return_image_from_url
+from src.utils import convert_fractional_time
 
-def sidebar(df):
-    st.sidebar.write(f"## Artist info")
-    artist_selected = st.sidebar.selectbox("Please select an artist to begin:", np.unique(df.sort_index().index))
-    artist_tracks = get_artist_tracks(df, artist_selected)
-
-    track_selected = st.sidebar.selectbox("Please select a track to begin:", artist_tracks)
-
+def sidebar():
     st.sidebar.write(f"## Recommendation info")
 
     # We get number of recommendations
@@ -31,7 +25,7 @@ def sidebar(df):
         bpm_maximum = st.sidebar.number_input("Maximum BPM", value = 130)
     arg_bpm = (bpm_minimum, bpm_maximum)
 
-    return(n_recommendations, artist_selected, track_selected, arg_key, arg_bpm)
+    return(n_recommendations, arg_key, arg_bpm)
 
 def head_introduction():
     st.markdown("""
@@ -63,6 +57,15 @@ def head_recommendations():
     """, unsafe_allow_html=True
     )
 
+def body_input_spotify_url():
+    # We create a text input
+    track_url = st.text_input("Input Spotify URL:", 
+                        label_visibility="visible", 
+                        value = "https://open.spotify.com/track/3WNzOFBAbi5Cc72223avI7?si=43b4cc2b1670459f",
+                        placeholder = "https://open.spotify.com/track/3WNzOFBAbi5Cc72223avI7?si=43b4cc2b1670459f")
+
+    return track_url
+
 def body_selection(response, df_artist_track_features, key_mapping, mode_mapping):
     artist_name = df_artist_track_features.index[0]
     track_name = df_artist_track_features["track_name"][0]
@@ -84,16 +87,14 @@ def body_selection(response, df_artist_track_features, key_mapping, mode_mapping
         st.metric("Mode:", mode_string)
     with f3:
         # BPM can come in the format 120.99 and 120.99.00
-        bpm_list = df_artist_track_features['tempo'].values[0].split(".")
-        bpm = "".join(bpm_list[0:1])
-
+        bpm = df_artist_track_features['tempo'].values[0]
         st.metric("BPM:", round(float(bpm), 1))
     with f4:
         length_minutes_decimal = int(df_artist_track_features['duration_ms'].values[0])/(60*1000)
         length_minutes_seconds = convert_fractional_time(length_minutes_decimal)
         st.metric("Length:", length_minutes_seconds)
     with f5:
-        energy = df_artist_track_features['energy'].values[0].replace(",", ".").strip()
+        energy = df_artist_track_features['energy'].values[0]
         st.metric("Energy:", round(float(energy), 2))
 
     # We grab the track preview and play it
@@ -126,8 +127,7 @@ def body_recommendation(response, df_artist_track_features, key_mapping, mode_ma
     mode_string = mode_mapping[str(mode_numeric)]
 
     # BPM can come in the format 120.99 and 120.99.00
-    bpm_list = df_artist_track_features['tempo'].values[0].split(".")
-    bpm = "".join(bpm_list[0:1])
+    bpm = round(df_artist_track_features['tempo'].values[0], 1)
 
     # We grab the track image and display it
     image_url = get_image_url(response)

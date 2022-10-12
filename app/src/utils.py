@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import streamlit as st
 import json
 import base64
@@ -60,29 +61,6 @@ def set_bg(png_file):
         </style>
     """ % bin_str
     st.markdown(page_bg_img, unsafe_allow_html=True)
-
-def get_artist_tracks(df, artist_selected):
-    artist_tracks = df.loc[artist_selected, 'track_name']
-
-    # We have to consider if only a single track or multiple tracks are returned
-    if isinstance(artist_tracks, str):
-        artist_tracks = [artist_tracks]
-    else:
-        artist_tracks = artist_tracks.values
-
-    return artist_tracks
-
-def get_artist_track_features(df, artist_selected, track_selected):
-    df_artist = df.loc[artist_selected]
-    
-    # We have to consider if only a single track or multiple tracks are returned
-    if isinstance(df_artist, pd.Series):
-        df_artist_track_features = df_artist.to_frame().T
-    else:
-        idx = df_artist['track_name'] == track_selected
-        df_artist_track_features = df_artist.loc[idx]
-
-    return df_artist_track_features
 
 def convert_fractional_time(length_minutes_decimal):
     minutes = length_minutes_decimal

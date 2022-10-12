@@ -2,9 +2,9 @@ import os
 import pandas as pd
 import streamlit as st
 
-from src.page_content import head_introduction, head_recommendations, sidebar, body_selection, body_recommendation
-from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance, get_artist_track_features
-from src.processing import search_artist_track
+from src.page_content import head_introduction, head_recommendations, sidebar, body_selection, body_input_spotify_url, body_recommendation
+from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance
+from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, get_artist_track_features_from_response, get_artist_track_features_from_local_data
 from src.recommendation import get_recommendations
 
 ############### APP ################
@@ -25,21 +25,26 @@ sp = setup_spotify_credentials_manager(config)
 instance = set_up_audio_instance()
 
 # Load Data
-path_data = os.path.join("data", "hypno_deep.csv")
+path_data = os.path.join("data", "track_audio_features.csv")
 df = read_data(path_data)
 
 # We get the user inputs from the sidebar
-n_recommendations, artist_selected, track_selected, arg_key, arg_bpm = sidebar(df)
-df_artist_track_features = get_artist_track_features(df, artist_selected, track_selected) 
-
-# We query the artist + track data from Spotify API
-response = search_artist_track(sp, artist_selected, track_selected)
+n_recommendations, arg_key, arg_bpm = sidebar()
 
 # We print the header
 head_introduction()
 
+# We print the input body
+track_url = body_input_spotify_url()
+
+# We query a track
+response_track = api_call_get_track_from_url(sp, track_url)
+
+# We get the artist track features for the specific track
+df_artist_track_features = get_artist_track_features_from_response(sp, response_track)
+
 # We show the user their selected track
-body_selection(response, df_artist_track_features, key_mapping, mode_mapping)
+body_selection(response_track, df_artist_track_features, key_mapping, mode_mapping)
 
 # We print the header for the recommendations section
 head_recommendations()
@@ -59,14 +64,14 @@ for cnt, artist in enumerate(df_recommendations.index):
     artist_recommended = df_artist_track_features_recommendation.index[0]
     track_recommended = df_artist_track_features_recommendation['track_name'][0]
 
-    df_artist_track_features_recommended = get_artist_track_features(df, artist_recommended, track_recommended) 
+    df_artist_track_features_recommended = get_artist_track_features_from_local_data(df, artist_recommended, track_recommended) 
 
-    response = search_artist_track(sp, artist_recommended, track_recommended)
+    response_track = api_call_get_track_from_artist_track(sp, artist_recommended, track_recommended)
     
     # If we only have a single recommendation we always use the middle columns
     if n_recommendations == 1:
         with columns[1]:
-            body_recommendation(response, df_artist_track_features_recommended, key_mapping, mode_mapping)
+            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
     else:
         with columns[cnt]:
-            body_recommendation(response, df_artist_track_features_recommended, key_mapping, mode_mapping)
+            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)

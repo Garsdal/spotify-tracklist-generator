@@ -12,7 +12,8 @@ def get_recommendations(n_recommendations, df, df_artist_track_features, arg_key
     
     if arg_bpm:
         # We fix the bpm for all artists
-        all_bpm_list = np.array([round(float("".join(x.split(".")[0:1])), 2) for x in df_filter['tempo']])
+        #all_bpm_list = np.array([round(float("".join(x.split(".")[0:1])), 2) for x in df_filter['tempo']])
+        all_bpm_list = np.array([round(float(x), 2) for x in df_filter['tempo']])
 
         bpm_match_idx = (all_bpm_list >= arg_bpm[0]) & (all_bpm_list <= arg_bpm[1])
         
