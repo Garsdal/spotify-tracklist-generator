@@ -2,12 +2,15 @@ import os
 import pandas as pd
 import streamlit as st
 
-from src.page_content import head_introduction, head_recommendations, sidebar, body_selection, body_input_spotify_url, body_recommendation
+from src.page_content import head_introduction, head_recommendations, head_tracklist, sidebar, body_selection, body_input_spotify_url, body_recommendation, body_tracklist
 from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance
 from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, get_artist_track_features_from_response, get_artist_track_features_from_local_data
 from src.recommendation import get_recommendations
 
 ############### APP ################
+
+# Init
+st.session_state['click'] = False
 
 # Set background
 set_bg('assets/background.jpg')
@@ -71,7 +74,14 @@ for cnt, artist in enumerate(df_recommendations.index):
     # If we only have a single recommendation we always use the middle columns
     if n_recommendations == 1:
         with columns[1]:
-            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
+            click = body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
     else:
         with columns[cnt]:
-            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
+            click = body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
+
+# We get the user recommendation
+artist_recommendation_selected = st.session_state['click']
+print(artist_recommendation_selected)
+
+# We print the header for the recommendations section
+head_tracklist()

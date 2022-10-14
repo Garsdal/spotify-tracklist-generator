@@ -57,6 +57,22 @@ def head_recommendations():
     """, unsafe_allow_html=True
     )
 
+def head_tracklist():
+    st.markdown("""
+        <h1 style='text-align: center; margin-bottom: -35px;'>
+        Tracklist
+        </h1>
+    """, unsafe_allow_html=True
+    )
+
+    st.caption("""
+        <p style='text-align: center'>
+        Your current playlist
+        </p>
+    """, unsafe_allow_html=True
+    )
+
+
 def body_input_spotify_url():
     # We create a text input
     track_url = st.text_input("Input Spotify URL:", 
@@ -115,6 +131,9 @@ def body_selection(response, df_artist_track_features, key_mapping, mode_mapping
         #st.caption(f' {artist_name} - {track_name}')
         st.image(img, caption=f' {artist_name} - {track_name}')
 
+def add_artist_to_session_state(artist_name):
+    st.session_state.click = artist_name
+
 def body_recommendation(response, df_artist_track_features, key_mapping, mode_mapping):
     artist_name = df_artist_track_features.index[0]
     track_name = df_artist_track_features["track_name"][0]
@@ -143,5 +162,17 @@ def body_recommendation(response, df_artist_track_features, key_mapping, mode_ma
     # We show the user the player
     st.audio(audio_bytesIO)
 
+    # We present the user a button
+    click = st.button("Select as next track", key = artist_name)
+
     # We show the user the image
     st.image(img, caption=f' {artist_name} - {track_name} | {key_string} | {mode_string} | {bpm}')
+
+    if click:
+        st.session_state['click'] = artist_name
+        return click
+    else:
+        return click
+
+def body_tracklist():
+    pass
