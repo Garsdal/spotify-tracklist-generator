@@ -8,7 +8,7 @@ from io import BytesIO
 
 def api_call_get_track_from_artist_track(sp, artist, track):
     response_search = sp.search(q="artist:" + artist + " track:" + track, type="track")
-
+    
     response_track = response_search['tracks']['items'][0]
 
     return response_track

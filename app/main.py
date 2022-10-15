@@ -9,8 +9,12 @@ from src.recommendation import get_recommendations
 
 ############### APP ################
 
-# Init
-st.session_state['click'] = False
+# Init session states
+if 'tracklist' not in st.session_state: 
+    st.session_state['tracklist'] = []
+
+if 'recommendation' not in st.session_state:
+    st.session_state['recommendation'] = False
 
 # Set background
 set_bg('assets/background.jpg')
@@ -40,11 +44,20 @@ head_introduction()
 # We print the input body
 track_url = body_input_spotify_url()
 
-# We query a track
-response_track = api_call_get_track_from_url(sp, track_url)
+if st.session_state['recommendation'] is False:
+    # We query a track
+    response_track = api_call_get_track_from_url(sp, track_url)
 
-# We get the artist track features for the specific track
-df_artist_track_features = get_artist_track_features_from_response(sp, response_track)
+    # We get the artist track features for the specific track
+    df_artist_track_features = get_artist_track_features_from_response(sp, response_track)
+else:
+    df_artist_track_features = st.session_state['recommendation']
+
+    artist_name = df_artist_track_features.index[0]
+    track_name = df_artist_track_features['track_name']
+
+    # We query a track
+    response_track = api_call_get_track_from_artist_track(sp, artist_name, track_name)
 
 # We show the user their selected track
 body_selection(response_track, df_artist_track_features, key_mapping, mode_mapping)
@@ -53,7 +66,6 @@ body_selection(response_track, df_artist_track_features, key_mapping, mode_mappi
 head_recommendations()
 
 # We get recommendations
-#df_recommendations = df.sample(n_recommendations)
 df_recommendations = get_recommendations(n_recommendations, df, df_artist_track_features, arg_key, arg_bpm)
 
 # We create columns to present the recommendations
@@ -74,14 +86,15 @@ for cnt, artist in enumerate(df_recommendations.index):
     # If we only have a single recommendation we always use the middle columns
     if n_recommendations == 1:
         with columns[1]:
-            click = body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
+            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
     else:
         with columns[cnt]:
-            click = body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
-
-# We get the user recommendation
-artist_recommendation_selected = st.session_state['click']
-print(artist_recommendation_selected)
+            body_recommendation(response_track, df_artist_track_features_recommended, key_mapping, mode_mapping)
 
 # We print the header for the recommendations section
 head_tracklist()
+
+if st.session_state.recommendation is not False:
+    df_tracklist = pd.concat(st.session_state.tracklist)
+
+    st.dataframe(df_tracklist)

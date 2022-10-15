@@ -20,4 +20,5 @@ def get_recommendations(n_recommendations, df, df_artist_track_features, arg_key
         df_filter = df_filter.loc[bpm_match_idx]
 
     # We sort by popularity
-    return(df_filter.head(n_recommendations))
+    return(df_filter.sample(n_recommendations))
+    #return(df_filter.head(n_recommendations))

@@ -3,6 +3,7 @@ import numpy as np
 import streamlit as st
 import time
 import requests
+from requests.exceptions import MissingSchema
 from io import BytesIO
 
 from src.processing import get_image_url, get_preview_url, return_image_from_url
@@ -116,14 +117,20 @@ def body_selection(response, df_artist_track_features, key_mapping, mode_mapping
     # We grab the track preview and play it
     preview_url = get_preview_url(response)
 
-    # # We get the data
-    response_audio = requests.get(preview_url)
-    audio_bytesIO = BytesIO(response_audio.content)
-    
-    # # We create a audio player
-    _,col_audio_mid,_ = st.columns(3)
-    with col_audio_mid:
-        st.audio(audio_bytesIO)
+    # We get the data
+    try:
+        response_audio = requests.get(preview_url)
+        audio_bytesIO = BytesIO(response_audio.content)
+        
+        # We create a audio player
+        _,col_audio_mid,_ = st.columns(3)
+        with col_audio_mid:
+            st.audio(audio_bytesIO)
+    except MissingSchema:
+        # We create a audio player
+        _,col_audio_mid,_ = st.columns(3)
+        with col_audio_mid:
+            st.error("No audio preview available")
 
     # We print the image
     _, col_mid, _ = st.columns(3)
@@ -131,8 +138,9 @@ def body_selection(response, df_artist_track_features, key_mapping, mode_mapping
         #st.caption(f' {artist_name} - {track_name}')
         st.image(img, caption=f' {artist_name} - {track_name}')
 
-def add_artist_to_session_state(artist_name):
-    st.session_state.click = artist_name
+def add_artist_track_features_to_tracklist(artist_track_features):
+    st.session_state.tracklist.append(artist_track_features)
+    st.session_state.recommendation = artist_track_features
 
 def body_recommendation(response, df_artist_track_features, key_mapping, mode_mapping):
     artist_name = df_artist_track_features.index[0]
@@ -156,23 +164,23 @@ def body_recommendation(response, df_artist_track_features, key_mapping, mode_ma
     preview_url = get_preview_url(response)
 
     # We get the data
-    response_audio = requests.get(preview_url)
-    audio_bytesIO = BytesIO(response_audio.content)
-
-    # We show the user the player
-    st.audio(audio_bytesIO)
+    try:
+        # We get the data
+        response_audio = requests.get(preview_url)
+        audio_bytesIO = BytesIO(response_audio.content)
+        
+        # We show the user the player
+        st.audio(audio_bytesIO)
+    except MissingSchema:
+        st.error("No audio preview available")
 
     # We present the user a button
-    click = st.button("Select as next track", key = artist_name)
+    click = st.button("Select as next track", key = artist_name, on_click=add_artist_track_features_to_tracklist, args=[df_artist_track_features])
 
     # We show the user the image
     st.image(img, caption=f' {artist_name} - {track_name} | {key_string} | {mode_string} | {bpm}')
 
-    if click:
-        st.session_state['click'] = artist_name
-        return click
-    else:
-        return click
+    return click
 
 def body_tracklist():
     pass
