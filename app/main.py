@@ -1,16 +1,16 @@
 import os
-import pandas as pd
 import streamlit as st
 
-from src.page_content import head_introduction, head_recommendations, head_tracklist, sidebar, body_selection, body_input_spotify_url, body_recommendation, body_tracklist
+from src.page_content import head_introduction, head_recommendations, head_tracklist, sidebar, body_selection, \
+    body_input_spotify_url, body_recommendation, body_tracklist
 from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance
-from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, get_artist_track_features_from_response, get_artist_track_features_from_local_data
+from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, \
+    get_artist_track_features_from_response, get_artist_track_features_from_local_data
 from src.recommendation import get_recommendations
 
-############### APP ################
 
 # Init session states
-if 'tracklist' not in st.session_state: 
+if 'tracklist' not in st.session_state:
     st.session_state['tracklist'] = []
 
 if 'recommendation' not in st.session_state:
@@ -25,7 +25,7 @@ config = load_config(path_config)
 key_mapping = load_config("config/mapping_key.json")
 mode_mapping = load_config("config/mapping_mode.json")
 
-# Setup credentials 
+# Setup credentials
 sp = setup_spotify_credentials_manager(config)
 
 # Setup audio instance
@@ -79,10 +79,10 @@ for cnt, artist in enumerate(df_recommendations.index):
     artist_recommended = df_artist_track_features_recommendation.index[0]
     track_recommended = df_artist_track_features_recommendation['track_name'][0]
 
-    df_artist_track_features_recommended = get_artist_track_features_from_local_data(df, artist_recommended, track_recommended) 
+    df_artist_track_features_recommended = get_artist_track_features_from_local_data(df, artist_recommended, track_recommended)
 
     response_track = api_call_get_track_from_artist_track(sp, artist_recommended, track_recommended)
-    
+
     # If we only have a single recommendation we always use the middle columns
     if n_recommendations == 1:
         with columns[1]:
@@ -95,6 +95,4 @@ for cnt, artist in enumerate(df_recommendations.index):
 head_tracklist()
 
 if st.session_state.recommendation is not False:
-    df_tracklist = pd.concat(st.session_state.tracklist)
-
-    st.dataframe(df_tracklist)
+    body_tracklist()

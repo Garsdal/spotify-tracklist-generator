@@ -6,51 +6,53 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 
+
 def api_call_get_track_from_artist_track(sp, artist, track):
     response_search = sp.search(q="artist:" + artist + " track:" + track, type="track")
-    
+
     response_track = response_search['tracks']['items'][0]
 
     return response_track
+
 
 def api_call_get_track_from_url(sp, track_url):
     response_track = sp.track(track_url)
 
     return response_track
 
+
 def get_artist_track_features_from_response(sp, response_track):
-    keys = ["artist_name", "artist_pop", "track_name", "track_pop", "album", "key", "mode", "tempo", "duration_ms", "time_signature", "energy", "danceability", "instrumentalness"]
-    artist_keys = ["artist_name", "artist_pop", "track_name", "track_pop", "album"]
+    keys = ["artist_name", "artist_pop", "track_name", "track_pop", "album", "key", "mode",
+            "tempo", "duration_ms", "time_signature", "energy", "danceability", "instrumentalness"]
     audio_keys = ["key", "mode", "tempo", "duration_ms", "time_signature", "energy", "danceability", "instrumentalness"]
     dict_data = {key: np.array([]) for key in keys}
 
-    #Track name
+    # Track name
     track_name = response_track['name']
     track_uri = response_track['uri']
 
-    #Main Artist
+    # Main Artist
     artist_uri = response_track["artists"][0]["uri"]
     artist_info = sp.artist(artist_uri)
 
-    #Name, popularity, genre
+    # Name, popularity, genre
     artist_name = response_track["artists"][0]["name"]
     artist_pop = artist_info["popularity"]
-    artist_genres = artist_info["genres"]
 
-    #Album
+    # Album
     album = response_track["album"]["name"]
 
-    #Popularity of the track
+    # Popularity of the track
     track_pop = response_track["popularity"]
 
     # We get audio features
     audio_features = sp.audio_features(track_uri)[0]
 
     # We look for the preview url
-    preview_url = response_track['preview_url']
+    # preview_url = response_track['preview_url']
 
     # We get the cover url
-    cover_url = response_track['album']['images'][0]['url']
+    # cover_url = response_track['album']['images'][0]['url']
 
     # We save the results
     dict_data["artist_name"] = np.append(dict_data["artist_name"], artist_name)
@@ -63,9 +65,10 @@ def get_artist_track_features_from_response(sp, response_track):
         dict_data[audio_key] = np.append(dict_data[audio_key], audio_features[audio_key])
 
     df = pd.DataFrame(dict_data)
-    df.set_index("artist_name", inplace = True)
+    df.set_index("artist_name", inplace=True)
 
     return df
+
 
 def get_artist_tracks_from_local_data(df, artist_selected):
     artist_tracks = df.loc[artist_selected, 'track_name']
@@ -78,9 +81,10 @@ def get_artist_tracks_from_local_data(df, artist_selected):
 
     return artist_tracks
 
+
 def get_artist_track_features_from_local_data(df, artist_selected, track_selected):
     df_artist = df.loc[artist_selected]
-    
+
     # We have to consider if only a single track or multiple tracks are returned
     if isinstance(df_artist, pd.Series):
         df_artist_track_features = df_artist.to_frame().T
@@ -90,6 +94,7 @@ def get_artist_track_features_from_local_data(df, artist_selected, track_selecte
 
     return df_artist_track_features
 
+
 def get_image_url(response_track):
     # If there are images in the response
     try:
@@ -98,8 +103,9 @@ def get_image_url(response_track):
             image_url = response_track['album']['images'][1]['url']
     except IndexError:
         image_url = None
-        
+
     return image_url
+
 
 def return_image_from_url(image_url):
     if image_url is None:
@@ -107,22 +113,24 @@ def return_image_from_url(image_url):
     else:
         response = requests.get(image_url)
         img = Image.open(BytesIO(response.content))
-    
+
     return img
+
 
 def get_preview_url(response_track):
     preview_url = response_track['preview_url']
 
     return preview_url
 
+
 def return_player_from_url(instance, preview_url):
-    #Define VLC player
-    player=instance.media_player_new()
+    # Define VLC player
+    player = instance.media_player_new()
 
-    #Define VLC media
-    media=instance.media_new(preview_url)
+    # Define VLC media
+    media = instance.media_new(preview_url)
 
-    #Set player media
+    # Set player media
     player.set_media(media)
 
     return player
