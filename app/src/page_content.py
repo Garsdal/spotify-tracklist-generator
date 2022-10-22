@@ -20,9 +20,9 @@ def sidebar():
     # We get a specific bpm range
     col_left, col_right = st.columns(2)
     with col_left:
-        bpm_minimum = st.sidebar.number_input("Minimum BPM", value=120)
+        bpm_minimum = st.sidebar.number_input("Minimum BPM", value=100)
     with col_right:
-        bpm_maximum = st.sidebar.number_input("Maximum BPM", value=130)
+        bpm_maximum = st.sidebar.number_input("Maximum BPM", value=200)
     arg_bpm = (bpm_minimum, bpm_maximum)
 
     return (n_recommendations, arg_key, arg_bpm)
@@ -80,8 +80,8 @@ def body_input_spotify_url():
     # We create a text input
     track_url = st.text_input("Input Spotify URL:",
                               label_visibility="visible",
-                              value="https://open.spotify.com/track/3WNzOFBAbi5Cc72223avI7?si=43b4cc2b1670459f",
-                              placeholder="https://open.spotify.com/track/3WNzOFBAbi5Cc72223avI7?si=43b4cc2b1670459f")
+                              value="https://open.spotify.com/track/60GwMZeymeZYj7GiEzHQ7d?si=9c8ea96aad9e4da4",
+                              placeholder="https://open.spotify.com/track/60GwMZeymeZYj7GiEzHQ7d?si=9c8ea96aad9e4da4")
 
     return track_url
 
