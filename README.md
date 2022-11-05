@@ -23,7 +23,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Garsdal/spotify-tracklist-generator">
-    <img src="assets/spotify_logo.png" alt="Logo" width="80" height="80">
+    <img src="assets/spotify_logo.png" alt="Logo" width="160" height="80">
   </a>
 
 <h3 align="center">Spotify Tracklist Generator</h3>
