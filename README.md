@@ -99,9 +99,11 @@ Set up Python version 3.7 or higher and
    pip install -r requirements.txt
    ```
 4. Enter your API Client ID/Secret in `config.json`
-   ```js
-   "CLIENT_ID": ['YOUR KEY HERE'];
-   "CLIENT_SECRET": ['YOUR KEY HERE'];
+   ```py
+   {
+    "CLIENT_ID": "YOUR KEY HERE",
+    "CLIENT_SECRET": "YOUR KEY HERE"
+   }
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -150,7 +152,8 @@ Don't forget to give the project a star! Thanks again!
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@vallisofficial](https://twitter.com/vallisofficial) - vallismusic@outlook.com
+Marcus Garsdal - [LinkedIn](https://www.linkedin.com/in/marcus-garsdal/) - garsdal@live.dk
+Vallis - [@vallisofficial](https://twitter.com/vallisofficial) - vallismusic@outlook.com
 
 Project Link: [https://github.com/Garsdal/spotify-tracklist-generator](https://github.com/Garsdal/spotify-tracklist-generator)
 
