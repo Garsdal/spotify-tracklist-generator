@@ -48,12 +48,12 @@ def get_base64(bin_file):
 
 
 def set_bg(png_file):
-    # We remove the header of the page
-    st.markdown("""
-    <style>
-        #MainMenu, header, footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+    #We remove the header of the page
+    # st.markdown("""
+    # <style>
+    #     header, footer {visibility: hidden;}
+    # </style>
+    # """, unsafe_allow_html=True)
 
     # We add the background as base64
     bin_str = get_base64(png_file)
@@ -75,3 +75,8 @@ def convert_fractional_time(length_minutes_decimal):
     length_minutes_seconds = "%02d:%02d" % (minutes, seconds)
 
     return length_minutes_seconds
+
+
+@st.cache
+def convert_df_to_csv(df):
+    return df.to_csv().encode('utf-8')

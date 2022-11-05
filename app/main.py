@@ -1,9 +1,11 @@
 import os
+import pandas as pd
 import streamlit as st
 
 from src.page_content import head_introduction, head_recommendations, head_tracklist, sidebar, body_selection, \
     body_input_spotify_url, body_recommendation, body_tracklist
-from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance
+from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance, \
+    convert_df_to_csv
 from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, \
     get_artist_track_features_from_response, get_artist_track_features_from_local_data
 from src.recommendation import get_recommendations
@@ -75,7 +77,7 @@ columns_mapping = {1: 3,
 columns = st.columns(columns_mapping[n_recommendations])
 
 for cnt, artist in enumerate(df_recommendations.index):
-    df_artist_track_features_recommendation = df_recommendations.loc[artist].to_frame().T
+    df_artist_track_features_recommendation = df_recommendations.iloc[cnt].to_frame().T
     artist_recommended = df_artist_track_features_recommendation.index[0]
     track_recommended = df_artist_track_features_recommendation['track_name'][0]
 
@@ -96,3 +98,14 @@ head_tracklist()
 
 if st.session_state.recommendation is not False:
     body_tracklist()
+
+    df_tracklist = pd.concat(st.session_state.tracklist)
+
+    # We add the option to download the tracklist from st.session_state['tracklist']
+    _, _, col_download_mid, _, _ = st.columns(5)
+    with col_download_mid:
+        st.download_button(
+            label="Download tracklist",
+            data=convert_df_to_csv(df_tracklist),
+            file_name='tracklist.csv',
+            mime='text/csv')
