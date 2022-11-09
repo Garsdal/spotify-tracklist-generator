@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.page_content import head_introduction, head_recommendations, head_tracklist, sidebar, body_selection, \
     body_input_spotify_url, body_recommendation, body_tracklist
-from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, set_up_audio_instance, \
+from src.utils import set_bg, read_data, load_config, setup_spotify_credentials_manager, \
     convert_df_to_csv
 from src.processing import api_call_get_track_from_artist_track, api_call_get_track_from_url, \
     get_artist_track_features_from_response, get_artist_track_features_from_local_data
@@ -29,9 +29,6 @@ mode_mapping = load_config("config/mapping_mode.json")
 
 # Setup credentials
 sp = setup_spotify_credentials_manager(config)
-
-# Setup audio instance
-instance = set_up_audio_instance()
 
 # Load Data
 path_data = os.path.join("data", "track_audio_features.csv")

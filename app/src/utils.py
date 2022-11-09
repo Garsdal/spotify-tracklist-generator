@@ -6,9 +6,6 @@ import base64
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# audio
-import vlc
-
 
 @st.cache(suppress_st_warning=True)
 def read_data(path):
@@ -34,10 +31,10 @@ def setup_spotify_credentials_manager(config):
     return sp
 
 
-def set_up_audio_instance():
-    instance = vlc.Instance('--input-repeat=-1', '--fullscreen')
+# def set_up_audio_instance():
+#     instance = vlc.Instance('--input-repeat=-1', '--fullscreen')
 
-    return instance
+#     return instance
 
 
 @st.cache(allow_output_mutation=True)
@@ -48,7 +45,7 @@ def get_base64(bin_file):
 
 
 def set_bg(png_file):
-    #We remove the header of the page
+    # We remove the header of the page
     # st.markdown("""
     # <style>
     #     header, footer {visibility: hidden;}
